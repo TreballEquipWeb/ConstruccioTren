@@ -190,8 +190,6 @@ new Nivell({
 })
 ```
 
-I a continuació es disparen accions de mostra (talar el bosc a `(0,2)`, destruir l'obstacle a `(1,1)` i col·locar rails a `(0,1)`, `(0,2)` i `(0,3)`) per validar la lògica.
-
 ### Què hi ha fet
 
 - Model de dades complet: `Casella`, `Mapa`, `Jugador`, `Nivell`, `SistemaEstrelles`, `Joc`.
@@ -201,12 +199,25 @@ I a continuació es disparen accions de mostra (talar el bosc a `(0,2)`, destrui
 - Detecció de victòria automàtica en col·locar un rail i de derrota quan ja no es poden generar més rails.
 - Mètode `Mapa.reiniciar()` per reconstruir el tauler.
 - Bootstrap de Phaser + Vite funcionant; escena `PlayScene` registrada.
+- **#16 Sistema de input:** detecció de clics del ratolí sobre el canvas. `onClic` calcula la fila i columna a partir de les coordenades del punter i el desplaçament del grid (`offsetX`, `offsetY`, `MIDA_CASELLA`).
+- **#19 Colocar rail, talar, destruir:** el clic connecta amb les accions del model: `BOSC` → `talarArbre`, `OBSTACLE` → `destruirObstacle`, `PLA` → `colocarRailEn`. Ignora clics fora del grid i quan `estat !== 'jugant'`.
+- **Renderitzat bàsic al canvas:** `dibuixarMapa()` dibuixa rectangles de color per a cada casella usant `Phaser.GameObjects.Graphics`. Es crida a l'inici i cada vegada que un clic modifica l'estat.
+
+### Colors del mapa
+
+| Tipus      | Color hex  | Color visual    |
+|------------|------------|-----------------|
+| `pla`      | `0x90EE90` | verd clar       |
+| `bosc`     | `0x228B22` | verd fosc       |
+| `obstacle` | `0x808080` | gris            |
+| `aigua`    | `0x4169E1` | blau            |
+| `rail`     | `0x8B4513` | marró           |
+| `inici`    | `0xFFD700` | groc/daurat     |
+| `meta`     | `0xFF4500` | taronja vermell |
 
 ### Què falta / propers passos típics
 
-- **Renderitzat al canvas de Phaser:** ara mateix `PlayScene.preload()` i `update()` són buits i `create()` només inicialitza l'estat del joc; no es dibuixen sprites del mapa, recursos ni HUD.
-- **Interacció d'usuari:** no hi ha entrada de ratolí/teclat per col·locar rails, talar o destruir; tot s'invoca per codi.
-- **UI:** comptadors de recursos, indicador d'estat (jugant/victòria/derrota), pantalla d'estrelles.
+- **UI:** comptadors de recursos (rails, tales, destruccions), indicador d'estat (jugant/victòria/derrota), pantalla d'estrelles.
 - **Múltiples nivells:** ara només hi ha un nivell de prova hardcoded a l'escena.
 - **Assets:** `public/icons.svg` existeix però no es carrega encara des de cap escena.
 - **Tests:** no hi ha suite de proves automatitzades.
@@ -229,6 +240,7 @@ I a continuació es disparen accions de mostra (talar el bosc a `(0,2)`, destrui
 Últims commits a la branca `Tasques-Marc`:
 
 ```
+(actual) #16 #19 Input system and action connection
 7ec4f5a Use joc.colocarRailEn and remove debug logs
 4f778ab Add function for the UI
 c81c916 Initialize game and sample actions in PlayScene
@@ -236,4 +248,4 @@ fb073c8 #14 Add calcularEstrelles method to SistemaEstrelles
 dc7a0cd #11 Add reiniciar method to Mapa class
 ```
 
-Es pot veure que el desenvolupament recent s'ha centrat a completar el sistema d'estrelles, afegir reinici de mapa i començar a connectar la lògica amb l'escena de Phaser.
+Es pot veure que el desenvolupament recent s'ha centrat a completar el sistema d'estrelles, afegir reinici de mapa i connectar la lògica amb l'escena de Phaser, incloent ara el sistema d'input i renderitzat bàsic.
