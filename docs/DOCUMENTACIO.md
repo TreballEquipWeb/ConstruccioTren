@@ -28,20 +28,32 @@ ConstruccioTren/
 ├── public/
 │   ├── favicon.svg
 │   └── icons.svg
+├── docs/
+│   ├── DOCUMENTACIO.md     # Aquest fitxer
+│   └── TASQUES_MARC.md     # Registre de tasques implementades
 └── src/
     ├── main.js             # Punt d'entrada: configura Phaser i carrega PlayScene
-    ├── style.css           # Estils globals (tema fosc, layout, canvas centrat)
+    ├── styles/
+    │   ├── main.css        # @import dels altres 3
+    │   ├── base.css        # Reset + variables CSS
+    │   ├── layout.css      # Estructura general (body, header, main…)
+    │   └── canvas.css      # Estils del canvas de Phaser
     ├── scenes/
     │   └── PlayScene.js    # Escena de Phaser que orquestra el joc
-    └── classes/
-        ├── index.js            # Re-exporta totes les classes
-        ├── tiposCasella.js     # Constants TIPOS_CASILLA
-        ├── Casella.js          # Una cel·la del mapa
-        ├── Mapa.js             # Matriu de Caselles + lògica de camí
-        ├── Jugador.js          # Recursos del jugador i accions
-        ├── Nivell.js           # Configuració d'un nivell
-        ├── SistemaEstrelles.js # Càlcul d'estrelles segons eficiència
-        └── Joc.js              # Orquestrador principal de l'estat del joc
+    ├── classes/
+    │   ├── index.js            # Re-exporta totes les classes i TIPOS_CASILLA
+    │   ├── Casella.js          # Una cel·la del mapa
+    │   ├── Mapa.js             # Matriu de Caselles + lògica de camí
+    │   ├── Jugador.js          # Recursos del jugador i accions
+    │   ├── Nivell.js           # Configuració d'un nivell
+    │   ├── SistemaEstrelles.js # Càlcul d'estrelles segons eficiència
+    │   └── Joc.js              # Orquestrador principal de l'estat del joc
+    ├── constants/
+    │   ├── tiposCasella.js     # Constants TIPOS_CASILLA
+    │   └── colors.js           # Constants COLORS_CASELLA (colors per tipus de casella)
+    ├── config/
+    │   └── nivells.js          # Configuració del nivell de prova (NIVELL_PROVA)
+    └── assets/                 # Recursos estàtics (carpeta reservada)
 ```
 
 ---
@@ -59,16 +71,14 @@ Scripts definits a `package.json`:
 Flux d'arrencada:
 
 1. `index.html` carrega `/src/main.js` com a mòdul ES.
-2. `main.js` crea una instància de `Phaser.Game` amb resolució 800×600, físiques arcade i registra l'única escena: `PlayScene`.
-3. `PlayScene.create()` defineix un mapa de prova, instancia `Nivell`, crida `Joc.iniciarJoc(nivell)` i executa una seqüència de mostra d'accions (talar, destruir, col·locar rails).
-
-> **Nota:** ara mateix l'escena no dibuixa res al canvas. Tota la lògica viu a les classes; la part visual encara no està implementada.
+2. `main.js` importa `src/styles/main.css` i crea una instància de `Phaser.Game` amb resolució 800×600, físiques arcade i registra l'única escena: `PlayScene`.
+3. `PlayScene.create()` instancia `Nivell` amb la config de `src/config/nivells.js`, crida `Joc.iniciarJoc(nivell)` i configura el renderitzat i el sistema d'input.
 
 ---
 
 ## 4. Model de domini
 
-### 4.1 `TIPOS_CASILLA` (`src/classes/tiposCasella.js`)
+### 4.1 `TIPOS_CASILLA` (`src/constants/tiposCasella.js`)
 
 Constants amb els tipus possibles de casella:
 
@@ -174,21 +184,23 @@ Final:
 
 ## 6. Estat actual (snapshot)
 
-A `src/scenes/PlayScene.js` el `create()` defineix un nivell de prova:
+La config del nivell de prova viu a `src/config/nivells.js` com a `NIVELL_PROVA`:
 
 ```js
-const mapaInicial = [
-  [INICI, PLA,      BOSC, PLA,  META],
-  [PLA,   OBSTACLE, PLA,  BOSC, PLA ],
-  [PLA,   PLA,      PLA,  PLA,  PLA ]
-]
-new Nivell({
+// src/config/nivells.js
+export const NIVELL_PROVA = {
   nom: 'Nivell de prova',
-  mapaInicial,
+  mapaInicial: [
+    [INICI, PLA,      BOSC, PLA,  META],
+    [PLA,   OBSTACLE, PLA,  BOSC, PLA ],
+    [PLA,   PLA,      PLA,  PLA,  PLA ]
+  ],
   railsInicials: 2,
   limitsAccions: { tales: 1, destruccions: 1, rails: 2 }
-})
+}
 ```
+
+`PlayScene.create()` l'instancia amb `new Nivell(NIVELL_PROVA)`.
 
 ### Què hi ha fet
 
@@ -202,6 +214,7 @@ new Nivell({
 - **#16 Sistema de input:** detecció de clics del ratolí sobre el canvas. `onClic` calcula la fila i columna a partir de les coordenades del punter i el desplaçament del grid (`offsetX`, `offsetY`, `MIDA_CASELLA`).
 - **#19 Colocar rail, talar, destruir:** el clic connecta amb les accions del model: `BOSC` → `talarArbre`, `OBSTACLE` → `destruirObstacle`, `PLA` → `colocarRailEn`. Ignora clics fora del grid i quan `estat !== 'jugant'`.
 - **Renderitzat bàsic al canvas:** `dibuixarMapa()` dibuixa rectangles de color per a cada casella usant `Phaser.GameObjects.Graphics`. Es crida a l'inici i cada vegada que un clic modifica l'estat.
+- **Reorganització de `src/`:** separació en `styles/`, `constants/`, `config/` i `assets/`.
 
 ### Colors del mapa
 
@@ -218,7 +231,7 @@ new Nivell({
 ### Què falta / propers passos típics
 
 - **UI:** comptadors de recursos (rails, tales, destruccions), indicador d'estat (jugant/victòria/derrota), pantalla d'estrelles.
-- **Múltiples nivells:** ara només hi ha un nivell de prova hardcoded a l'escena.
+- **Múltiples nivells:** ara `src/config/nivells.js` conté un sol nivell de prova.
 - **Assets:** `public/icons.svg` existeix però no es carrega encara des de cap escena.
 - **Tests:** no hi ha suite de proves automatitzades.
 - **README:** actualment només conté el títol del projecte.
@@ -230,7 +243,7 @@ new Nivell({
 - Mòduls ES (`import` / `export`) — `package.json` té `"type": "module"`.
 - Noms de classes, mètodes i variables principalment en **català**, amb algunes referències secundàries en castellà (p. ex. `TIPOS_CASILLA`).
 - Documentació JSDoc a la majoria de classes i mètodes públics.
-- `src/classes/index.js` actua com a *barrel* per simplificar imports.
+- `src/classes/index.js` actua com a *barrel* per simplificar imports des de les escenes.
 - Estil de codi sense punt i coma final (excepte alguna línia puntual).
 
 ---
@@ -240,12 +253,10 @@ new Nivell({
 Últims commits a la branca `Tasques-Marc`:
 
 ```
-(actual) #16 #19 Input system and action connection
+(actual) Reorganització src/: styles/, constants/, config/, assets/
+1c6f9cb doc
 7ec4f5a Use joc.colocarRailEn and remove debug logs
 4f778ab Add function for the UI
 c81c916 Initialize game and sample actions in PlayScene
 fb073c8 #14 Add calcularEstrelles method to SistemaEstrelles
-dc7a0cd #11 Add reiniciar method to Mapa class
 ```
-
-Es pot veure que el desenvolupament recent s'ha centrat a completar el sistema d'estrelles, afegir reinici de mapa i connectar la lògica amb l'escena de Phaser, incloent ara el sistema d'input i renderitzat bàsic.

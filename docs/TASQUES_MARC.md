@@ -55,3 +55,48 @@
 ## Classes NO modificades
 
 Tal com exigeixen les regles: `Casella`, `Mapa`, `Jugador`, `Nivell`, `SistemaEstrelles`, `Joc` no han estat tocades.
+
+---
+
+## Reorganització de `src/` (sense canvi de lògica)
+
+### Fitxers creats
+
+| Fitxer | Origen |
+|--------|--------|
+| `src/styles/base.css` | Extret de `src/style.css` (reset + variables CSS) |
+| `src/styles/layout.css` | Extret de `src/style.css` (estructura general) |
+| `src/styles/canvas.css` | Extret de `src/style.css` (estils del canvas) |
+| `src/styles/main.css` | Nou — `@import` dels 3 CSS anteriors |
+| `src/constants/tiposCasella.js` | Mogut des de `src/classes/tiposCasella.js` (contingut idèntic) |
+| `src/constants/colors.js` | Extret de `src/scenes/PlayScene.js` (`COLORS_CASELLA`) |
+| `src/config/nivells.js` | Extret de `src/scenes/PlayScene.js` (config `NIVELL_PROVA`) |
+| `src/assets/.gitkeep` | Nou — carpeta reservada per a recursos |
+
+### Fitxers eliminats
+
+| Fitxer | Motiu |
+|--------|-------|
+| `src/style.css` | Dividit en `src/styles/` |
+| `src/classes/tiposCasella.js` | Mogut a `src/constants/tiposCasella.js` |
+
+### Fitxers amb imports actualitzats
+
+| Fitxer | Canvi |
+|--------|-------|
+| `src/main.js` | `./style.css` → `./styles/main.css` |
+| `src/classes/Casella.js` | `./tiposCasella.js` → `../constants/tiposCasella.js` |
+| `src/classes/Mapa.js` | `./tiposCasella.js` → `../constants/tiposCasella.js` |
+| `src/classes/Jugador.js` | `./tiposCasella.js` → `../constants/tiposCasella.js` |
+| `src/classes/Joc.js` | `./tiposCasella.js` → `../constants/tiposCasella.js` |
+| `src/classes/index.js` | `./tiposCasella.js` → `../constants/tiposCasella.js` |
+| `src/scenes/PlayScene.js` | Afegits imports de `COLORS_CASELLA` i `NIVELL_PROVA`; eliminades definicions inline |
+
+### `docs/DOCUMENTACIO.md`
+
+- Secció 2: estructura nova de `src/` amb `styles/`, `constants/`, `config/`, `assets/`.
+- Secció 3: flux d'arrencada actualitzat (referència a `styles/main.css`).
+- Secció 4.1: ruta canviada de `classes/tiposCasella.js` a `constants/tiposCasella.js`.
+- Secció 6: snapshot actualitzat (config viu a `config/nivells.js`).
+- Secció 7: nota del barrel actualitzada.
+- Secció 8: historial afegit.
