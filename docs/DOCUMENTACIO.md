@@ -12,7 +12,7 @@ Document a banda del `README.md` amb l'estat actual del projecte i com funciona.
 - **Motor de joc:** [Phaser 4](https://phaser.io/) (`phaser ^4.1.0`)
 - **Bundler / dev server:** [Vite](https://vitejs.dev/) (`vite ^8.0.10`)
 - **Gestor de paquets:** pnpm (existeix `pnpm-lock.yaml`)
-- **Branca actual:** `Tasques-Marc` (la branca principal és `main`)
+- **Branca actual:** `main`
 
 ---
 
@@ -29,8 +29,7 @@ ConstruccioTren/
 │   ├── favicon.svg
 │   └── icons.svg
 ├── docs/
-│   ├── DOCUMENTACIO.md     # Aquest fitxer
-│   └── TASQUES_MARC.md     # Registre de tasques implementades
+│   └── DOCUMENTACIO.md     # Aquest fitxer
 └── src/
     ├── main.js             # Punt d'entrada: configura Phaser i carrega PlayScene
     ├── styles/
@@ -50,9 +49,12 @@ ConstruccioTren/
     │   └── Joc.js              # Orquestrador principal de l'estat del joc
     ├── constants/
     │   ├── tiposCasella.js     # Constants TIPOS_CASILLA
-    │   └── colors.js           # Constants COLORS_CASELLA (colors per tipus de casella)
+    │   ├── colors.js           # Constants COLORS_CASELLA (colors per tipus de casella)
+    │   └── ui.js               # Constants UI_COLORS, UI_DEPTH, UI_STYLES
     ├── config/
     │   └── nivells.js          # Configuració del nivell de prova (NIVELL_PROVA)
+    ├── ui/
+    │   └── HUD.js              # Panel HUD amb comptadors de recursos
     └── assets/                 # Recursos estàtics (carpeta reservada)
 ```
 
@@ -207,14 +209,17 @@ export const NIVELL_PROVA = {
 - Model de dades complet: `Casella`, `Mapa`, `Jugador`, `Nivell`, `SistemaEstrelles`, `Joc`.
 - Detecció de camí amb BFS sobre caselles connectables.
 - Gestió de recursos (rails, tales, destruccions) amb validacions.
-- Càlcul d'estrelles 0–3 segons victòria, accions i recursos sobrants.
+- Càlcul d'estrelles 0–3 segons victòria, accions i recursos sobrants; `SistemaEstrelles` rep ara un array del camí òptim per calcular `accionsIdeals`.
 - Detecció de victòria automàtica en col·locar un rail i de derrota quan ja no es poden generar més rails.
 - Mètode `Mapa.reiniciar()` per reconstruir el tauler.
 - Bootstrap de Phaser + Vite funcionant; escena `PlayScene` registrada.
 - **#16 Sistema de input:** detecció de clics del ratolí sobre el canvas. `onClic` calcula la fila i columna a partir de les coordenades del punter i el desplaçament del grid (`offsetX`, `offsetY`, `MIDA_CASELLA`).
 - **#19 Colocar rail, talar, destruir:** el clic connecta amb les accions del model: `BOSC` → `talarArbre`, `OBSTACLE` → `destruirObstacle`, `PLA` → `colocarRailEn`. Ignora clics fora del grid i quan `estat !== 'jugant'`.
 - **Renderitzat bàsic al canvas:** `dibuixarMapa()` dibuixa rectangles de color per a cada casella usant `Phaser.GameObjects.Graphics`. Es crida a l'inici i cada vegada que un clic modifica l'estat.
-- **Reorganització de `src/`:** separació en `styles/`, `constants/`, `config/` i `assets/`.
+- **Reorganització de `src/`:** separació en `styles/`, `constants/`, `config/`, `ui/` i `assets/`.
+- **HUD de recursos (`src/ui/HUD.js`):** panel superior centrat que mostra en temps real els comptadors de rails, tales i destruccions del jugador. S'actualitza a cada acció.
+- **Constants UI (`src/constants/ui.js`):** centralitza `UI_COLORS`, `UI_DEPTH` i `UI_STYLES` per a tota la interfície (HUD, overlays de victòria/derrota, estrelles).
+- **Pantalla de resultat:** overlay semitransparent amb text de victòria/derrota i estrelles obtingudes (⭐) al final de la partida.
 
 ### Colors del mapa
 
@@ -230,7 +235,6 @@ export const NIVELL_PROVA = {
 
 ### Què falta / propers passos típics
 
-- **UI:** comptadors de recursos (rails, tales, destruccions), indicador d'estat (jugant/victòria/derrota), pantalla d'estrelles.
 - **Múltiples nivells:** ara `src/config/nivells.js` conté un sol nivell de prova.
 - **Assets:** `public/icons.svg` existeix però no es carrega encara des de cap escena.
 - **Tests:** no hi ha suite de proves automatitzades.
@@ -250,13 +254,12 @@ export const NIVELL_PROVA = {
 
 ## 8. Historial recent (git)
 
-Últims commits a la branca `Tasques-Marc`:
+Últims commits a `main`:
 
 ```
-(actual) Reorganització src/: styles/, constants/, config/, assets/
-1c6f9cb doc
-7ec4f5a Use joc.colocarRailEn and remove debug logs
-4f778ab Add function for the UI
-c81c916 Initialize game and sample actions in PlayScene
-fb073c8 #14 Add calcularEstrelles method to SistemaEstrelles
+24bdfc4 fix idioma hud
+0dacb8b implementacio del HUD + bug fix: talar arbre +1 rail
+1fd608c sistema d'estrelles per array de cami optim + funcionament implementat amb interficie
+5dde65a nova organitzacio
+277ca31 issue #16 i #19
 ```
